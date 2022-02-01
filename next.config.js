@@ -1,3 +1,4 @@
 module.exports = {
-  reactStrictMode: true,
-}
+    basePath: "/decentraland",
+    reactStrictMode: true,
+};
