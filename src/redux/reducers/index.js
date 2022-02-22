@@ -2,8 +2,8 @@ import { combineReducers } from "redux";
 import _ from "lodash";
 
 import {
-    GET_CONTRACT,
     FETCH_LANDS,
+    FETCH_LAND,
     PUBLISH_LAND,
     SELECT_LAND,
 } from "../actions/types";
@@ -12,16 +12,28 @@ const landReducer = (lands = { lands: {}, selectedLand: {} }, action) => {
     switch (action.type) {
         case FETCH_LANDS:
             const formattedLands = _.mapKeys(action.payload, "id");
-            return { lands: formattedLands, selectedLand: formattedLands[1] };
+            return {
+                lands: formattedLands,
+                selectedLand: _.isEmpty(lands.selectedLand)
+                    ? formattedLands[Object.keys(formattedLands)[0]]
+                    : lands.selectedLand,
+            };
+        case FETCH_LAND:
+            return {
+                lands: { ...lands.lands, [action.payload.id]: action.payload },
+                selectedLand: action.payload,
+            };
         case PUBLISH_LAND:
-            return lands;
+            console.log("Land uploaded successfully");
+            return {
+                lands: { ...lands.lands, [action.payload.id]: action.payload },
+                selectedLand: action.payload,
+            };
         case SELECT_LAND:
-            const newLands = {
+            return {
                 ...lands,
                 selectedLand: lands.lands[action.payload],
             };
-            console.log(newLands);
-            return newLands;
         default:
             return lands;
     }

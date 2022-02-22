@@ -12,7 +12,7 @@ import { MoonIcon, SunIcon } from "@chakra-ui/icons";
 import Jdenticon from "react-jdenticon";
 
 import { useAuth } from "../../contexts/AuthContext";
-import { navBarItems } from "../../configs";
+import { DETAIL_INFO_COLOR, navBarItems, PRIMARY_COLOR } from "../../configs";
 import GenericNavItem from "./GenericNavItem";
 
 const NavBar = () => {
@@ -36,7 +36,7 @@ const NavBar = () => {
         >
             <Flex direction="column">
                 <Text
-                    bgGradient="linear(to-r, #fc4a1a, #f7b733)"
+                    bgGradient={`linear(to-r, ${PRIMARY_COLOR}.500 , ${PRIMARY_COLOR}.300)`}
                     bgClip="text"
                     fontSize="3xl"
                     fontWeight="bold"
@@ -54,10 +54,13 @@ const NavBar = () => {
                         <Jdenticon size="30" value={currentUser} />
                         <Flex ml={4} direction="column">
                             <Heading size="sm">Pambao</Heading>
-                            <Text color="gray">Admin</Text>
+                            <Text color={DETAIL_INFO_COLOR}>Admin</Text>
                         </Flex>
                     </Flex>
-                    <Button onClick={toggleColorMode}>
+                    <Button
+                        colorScheme={PRIMARY_COLOR}
+                        onClick={toggleColorMode}
+                    >
                         {colorMode === "light" ? <MoonIcon /> : <SunIcon />}
                     </Button>
                 </Flex>

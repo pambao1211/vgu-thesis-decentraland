@@ -23,7 +23,9 @@ const GenericNavItem = ({ path, subItems, pl, ...rest }) => {
     if (path) {
         return (
             <Link w="100%" href={path} passHref>
-                <NavItem pl={pl} path={path} {...rest} />
+                <a>
+                    <NavItem pl={pl} path={path} {...rest} />
+                </a>
             </Link>
         );
     } else {

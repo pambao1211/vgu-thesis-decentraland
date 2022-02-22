@@ -2,7 +2,7 @@ import { useDispatch } from "react-redux";
 import { useToast } from "@chakra-ui/react";
 
 import { useAuth } from "../../../contexts/AuthContext";
-import { publishLand } from "../../../actions";
+import { publishLand } from "../../../redux/actions";
 import GenericForm from "../../../components/commons/GenericForm";
 
 export default function AddLand() {
@@ -12,7 +12,6 @@ export default function AddLand() {
 
     const handleSubmit = async (values) => {
         const { owner, description, file } = values;
-        console.log(values);
         try {
             await dispatch(publishLand(owner, description, file, currentUser));
             toast({
@@ -35,12 +34,25 @@ export default function AddLand() {
         }
     };
 
+    const handleFileChange = (e, form) => {
+        const fileReader = new FileReader();
+        if (e.target.files[0]) {
+            fileReader.readAsText(e.target.files[0], "utf-8");
+            fileReader.onloadend = () => {
+                const result = JSON.parse(fileReader.result);
+                form.setFieldValue("file", fileReader.result);
+                form.setFieldValue("area", result.area);
+            };
+        }
+    };
+
     const formProperties = {
         heading: "Land Registration Form",
         initialValues: {
             owner: "",
             description: "",
             file: null,
+            area: "",
         },
         validate: (values) => {
             const error = {};
@@ -71,6 +83,15 @@ export default function AddLand() {
                 name: "file",
                 label: "File",
                 type: "file",
+                isRequired: true,
+                handleFileChange: handleFileChange,
+            },
+            {
+                name: "area",
+                label: "Area",
+                type: "number",
+                isDisabled: true,
+                variant: "filled",
                 isRequired: true,
             },
         ],

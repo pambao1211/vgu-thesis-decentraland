@@ -19,3 +19,9 @@ a {
     width: 100%;
     height: 100%;
 }
+
+.css-1pwkzcn[disabled],
+.css-1pwkzcn[aria-disabled="true"],
+.css-1pwkzcn[data-disabled] {
+    opacity: 100 !important;
+}

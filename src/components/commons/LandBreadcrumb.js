@@ -3,8 +3,10 @@ import { useRouter } from "next/router";
 import { Box, Breadcrumb, BreadcrumbItem } from "@chakra-ui/react";
 import { ChevronRightIcon } from "@chakra-ui/icons";
 
+import { PRIMARY_COLOR } from "../../configs";
+
 const LandBreadcrumb = () => {
-    const { pathname, basePath } = useRouter();
+    const { asPath: pathname, basePath } = useRouter();
     const upper = (path) => {
         return path[0].toUpperCase() + path.substring(1);
     };
@@ -23,7 +25,9 @@ const LandBreadcrumb = () => {
             return (
                 <BreadcrumbItem key={item}>
                     <Link href={path} passHref>
-                        <Box _hover={{ color: "orange", cursor: "pointer" }}>
+                        <Box
+                            _hover={{ color: PRIMARY_COLOR, cursor: "pointer" }}
+                        >
                             {upper(item)}
                         </Box>
                     </Link>

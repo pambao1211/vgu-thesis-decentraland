@@ -7,7 +7,7 @@ import { composeWithDevTools } from "@redux-devtools/extension";
 
 import Layout from "../layout/Layout";
 import AuthProvider from "../contexts/AuthContext";
-import reducer from "../reducers";
+import reducer from "../redux/reducers";
 import "../styles/globals.css";
 
 const store = createStore(reducer, composeWithDevTools(applyMiddleware(thunk)));

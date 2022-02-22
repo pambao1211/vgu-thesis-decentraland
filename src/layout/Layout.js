@@ -1,4 +1,4 @@
-import { Box, Flex, Grid, GridItem, useColorModeValue } from "@chakra-ui/react";
+import { Box, Flex, Grid, GridItem } from "@chakra-ui/react";
 
 import AdminBar from "./AdminBar";
 import NavBar from "./nav-bar/NavBar";

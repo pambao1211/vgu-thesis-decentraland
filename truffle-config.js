@@ -1,6 +1,6 @@
 module.exports = {
-    contracts_directory: "./src/contracts",
-    migrations_directory: "./src/migrations",
+    contracts_directory: "./src/blockchain/contracts",
+    migrations_directory: "./src/blockchain/migrations",
     contracts_build_directory: "./abis",
     networks: {
         development: {

@@ -1,0 +1,8 @@
+const BASE_INFO_COLOR = "gray";
+const BASE_SCHEME = 400;
+const LIGHT_SCHEME = BASE_SCHEME - 100;
+export const PRIMARY_COLOR = "red";
+export const PRIMARY_PATTERN_COLOR = `${PRIMARY_COLOR}.${BASE_SCHEME}`;
+export const NAVBAR_PATTERN_COLOR = `${PRIMARY_COLOR}.${LIGHT_SCHEME}`;
+export const DETAIL_INFO_COLOR = `${BASE_INFO_COLOR}.500`;
+export const BOX_BORDER_COLOR = `${BASE_INFO_COLOR}.100`;

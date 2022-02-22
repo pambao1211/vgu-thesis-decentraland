@@ -3,7 +3,7 @@ import { useDispatch } from "react-redux";
 import Web3 from "web3";
 
 import Loading from "../components/Loading";
-import { getContract } from "../actions";
+import { getContract } from "../redux/actions";
 
 const AuthContext = React.createContext();
 const useAuth = () => {

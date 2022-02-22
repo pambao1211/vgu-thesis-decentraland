@@ -11,9 +11,11 @@ import "leaflet-defaulticon-compatibility";
 import { Box } from "@chakra-ui/react";
 import { createRef, useState, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
+import _ from "lodash";
 
 import dataSet from "../../../preprep-data/sampleFile.json";
-import { fetchLands, selectLand } from "../../actions";
+import { fetchLands, selectLand } from "../../redux/actions";
+import { PRIMARY_COLOR } from "../../configs";
 
 const Map = () => {
     // const polygons = dataSet; //.slice(500, 700);
@@ -27,15 +29,15 @@ const Map = () => {
         dispatch(fetchLands());
     }, []);
     useEffect(() => {
-        if (map) {
+        if (map && !_.isEmpty(selectedLand)) {
             map.flyTo(selectedLand.center, 17, { duration: 1.5 });
         }
-    }, [selectedLand]);
+    }, [map, selectedLand]);
 
     const renderedPolygons = lands.map((land) => {
         const config =
-            selectedLand.id === land.id
-                ? { color: "green", weight: 2 }
+            selectedLand && selectedLand.id === land.id
+                ? { color: PRIMARY_COLOR, weight: 2 }
                 : { color: "gray", weight: 1 };
         return (
             <Polygon
@@ -52,7 +54,7 @@ const Map = () => {
                     setMap(mapInstance);
                 }}
                 center={[52.3743401602888, 4.8862385854049]}
-                zoom={20}
+                zoom={14}
                 scrollWheelZoom={true}
             >
                 <TileLayer

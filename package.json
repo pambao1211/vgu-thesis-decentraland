@@ -12,6 +12,7 @@
         "@chakra-ui/react": "^1.7.4",
         "@emotion/react": "^11.7.1",
         "@emotion/styled": "^11.6.0",
+        "@openzeppelin/contracts": "^4.4.2",
         "@redux-devtools/extension": "^3.2.0",
         "chai": "^4.3.4",
         "chai-as-promised": "^7.1.1",

@@ -8,6 +8,8 @@ import {
     ModalContent,
 } from "@chakra-ui/react";
 
+import { PRIMARY_COLOR } from "../configs";
+
 const Loading = () => {
     return (
         <Modal isOpen={true}>
@@ -21,7 +23,7 @@ const Loading = () => {
                             speed="0.65s"
                             emptyColor="gray.200"
                             size="xl"
-                            color="orange"
+                            color={PRIMARY_COLOR}
                         />
                     </Flex>
                 </ModalHeader>

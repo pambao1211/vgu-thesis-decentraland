@@ -9,28 +9,22 @@ import {
     Stack,
     Grid,
     GridItem,
-    useToast,
 } from "@chakra-ui/react";
 import { Formik, Form, Field } from "formik";
+
+import { PRIMARY_COLOR } from "../../configs";
 
 const GenericForm = (props) => {
     const [isLoading, setIsLoading] = useState(false);
     const { heading, initialValues, validate, handleSubmit, fields } = props;
-    const toast = useToast();
 
     const renderedField = ({ field, form, label, ...props }) => {
         const { name } = field;
-        const { isRequired } = props;
+        const { isRequired, handleFileChange, ...rest } = props;
         const error = form.errors[name] && form.touched[name];
-        const handleFileChange = (e, form) => {
-            const fileReader = new FileReader();
-            fileReader.readAsText(e.target.files[0], "utf-8");
-            fileReader.onloadend = () => {
-                form.values.file = fileReader.result;
-            };
-        };
+
         return (
-            <FormControl isRequired w="100%" isInvalid={error}>
+            <FormControl isRequired={isRequired} w="100%" isInvalid={error}>
                 <Grid templateColumns="repeat(10, 1fr)" gap={3}>
                     <GridItem display="flex" alignItems="center" colSpan={1}>
                         <FormLabel w="100px" textAlign="end">
@@ -44,10 +38,10 @@ const GenericForm = (props) => {
                                     handleFileChange(e, form);
                                 }}
                                 name={name}
-                                {...props}
+                                {...rest}
                             />
                         ) : (
-                            <Input {...field} {...props} />
+                            <Input {...field} {...rest} />
                         )}
                     </GridItem>
                     <GridItem colSpan={2}>
@@ -86,7 +80,7 @@ const GenericForm = (props) => {
                         {renderedFormikFields}
                         <Button
                             isLoading={isLoading}
-                            colorScheme="orange"
+                            colorScheme={PRIMARY_COLOR}
                             type="submit"
                         >
                             Submit

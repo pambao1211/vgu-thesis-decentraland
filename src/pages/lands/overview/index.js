@@ -1,28 +1,40 @@
-import { Box } from "@chakra-ui/react";
-import { useSelector, useDispatch } from "react-redux";
+import { useSelector } from "react-redux";
+import { Stack } from "@chakra-ui/react";
+import { useRouter } from "next/router";
 
-import { selectLand } from "../../../actions";
+import LandListItem from "../../../components/pages/lands/overview/LandListItem";
+import Empty from "../../../components/commons/Empty";
 
 const LandsOverview = () => {
-    const dispatch = useDispatch();
+    const router = useRouter();
     const lands = useSelector((state) =>
         Object.values(state.landReducer.lands)
     );
+    const renderedLands = () => {
+        return (
+            <Stack w="100%" spacing={3}>
+                {lands.map((land) => {
+                    return <LandListItem key={land.id} land={land} />;
+                })}
+            </Stack>
+        );
+    };
     return (
-        <Box>
-            {lands.map((land) => {
-                return (
-                    <Box
-                        key={land.id}
-                        onClick={() => {
-                            dispatch(selectLand(land.id));
-                        }}
-                    >
-                        {land.id}
-                    </Box>
-                );
-            })}
-        </Box>
+        <>
+            {lands.length === 0 ? (
+                <Empty
+                    message="There is no land uploaded yet"
+                    action={{
+                        title: "Add Land",
+                        action: () => {
+                            router.push("/lands/add");
+                        },
+                    }}
+                />
+            ) : (
+                renderedLands()
+            )}
+        </>
     );
 };
 
