@@ -6,7 +6,7 @@ import { BiCake } from "react-icons/bi";
 
 import { BOX_BORDER_COLOR, PRIMARY_COLOR } from "../../../../configs";
 import OverviewDetailSpec from "../../../commons/OverviewDetailSpec";
-import { formattedDob } from "../../../../utils";
+import { formatDob } from "../../../../utils";
 
 const CitizenListItem = ({ citizen }) => {
     const router = useRouter();
@@ -34,7 +34,7 @@ const CitizenListItem = ({ citizen }) => {
                         />
                         <OverviewDetailSpec
                             icon={BiCake}
-                            value={formattedDob(dob)}
+                            value={formatDob(dob)}
                         />
                     </HStack>
                 </Box>

@@ -13,7 +13,7 @@ import {
 import Jdenticon from "react-jdenticon";
 import { BsShieldCheck } from "react-icons/bs";
 
-import { formattedDate, formattedTime } from "../../../../utils";
+import { formatDate, formatTime } from "../../../../utils";
 import {
     PRIMARY_COLOR,
     PRIMARY_PATTERN_COLOR,
@@ -24,16 +24,16 @@ const ownershipCard = (transaction, isCurrentOwner) => {
     const { ownerIdNumber, ownerFullname, transferDate } = transaction;
     return (
         <React.Fragment key={transferDate}>
-            <Flex justify="space-between" align="center">
-                <HStack color={DETAIL_INFO_COLOR} py={3} spacing={6} w="100%">
+            <Flex w="100%" justify="space-between" align="center">
+                <HStack w="80%" color={DETAIL_INFO_COLOR} spacing={4} py={3}>
                     <Jdenticon size="50" value={ownerFullname} />
-                    <Box>
+                    <Box w="30%">
                         <Text>{ownerFullname}</Text>
                         <Text>{ownerIdNumber}</Text>
                     </Box>
                     <Box>
-                        <Text>{formattedDate(transferDate)}</Text>
-                        <Text>{formattedTime(transferDate)}</Text>
+                        <Text>{formatDate(transferDate)}</Text>
+                        <Text>{formatTime(transferDate)}</Text>
                     </Box>
                 </HStack>
                 {isCurrentOwner ? (

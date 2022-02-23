@@ -24,4 +24,7 @@ module.exports = {
             // },
         },
     },
+    console: {
+        require: "./src/blockchain/setup-scripts/setupFuncs.js",
+    },
 };

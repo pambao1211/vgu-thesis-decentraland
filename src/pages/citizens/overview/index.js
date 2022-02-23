@@ -15,7 +15,6 @@ export default function CitizensOverview() {
     useEffect(() => {
         const fetchCitizensData = async () => {
             const result = await getCitizens(contract);
-            console.log(result);
             setCitizens(result);
         };
         fetchCitizensData();

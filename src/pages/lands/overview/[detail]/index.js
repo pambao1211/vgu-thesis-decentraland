@@ -16,8 +16,9 @@ import _ from "lodash";
 import OwnershipInfoList from "../../../../components/pages/lands/overview/OwnershipInfoList";
 import Empty from "../../../../components/commons/Empty";
 import { fetchLand } from "../../../../redux/actions";
-import { formattedDate, formattedTime } from "../../../../utils";
+import { formatDate, formatTime } from "../../../../utils";
 import { PRIMARY_PATTERN_COLOR, DETAIL_INFO_COLOR } from "../../../../configs";
+import DetailBase from "../../../../components/commons/DetailBase";
 
 const renderedField = (label, content) => {
     return (
@@ -58,56 +59,69 @@ const LandDetail = () => {
         intializeData();
     }, []);
 
-    return (
-        <Box w="100%">
-            <Flex justify="center" align="flex-end" mb={5}>
-                <Icon
-                    mr={3}
-                    color={PRIMARY_PATTERN_COLOR}
-                    as={GiFactory}
-                    boxSize={12}
-                />
-                <Heading size="lg">{land.landCode}</Heading>
-            </Flex>
-            {sectionTitle("Land Specifications")}
-            <Stack pl={5} spacing={3}>
-                {renderedField("Property Identification", land.id)}
-                {renderedField("Township Code", land.landCode)}
-                {renderedField(
-                    "Township Name",
-                    `Amsterdam ${land.parcelNumber}`
-                )}
-                {renderedField("Parcel Number", land.parcelNumber)}
-                {renderedField(
-                    "Area",
+    const detailCards = !_.isEmpty(land.transactions) ? (
+        <OwnershipInfoList transactions={land.transactions} />
+    ) : (
+        <Flex w="100" direction="column" align="center">
+            <Empty
+                message="This land is currently vacant"
+                action={{
+                    title: "Transfer",
+                    action: () => {
+                        console.log("Transfer");
+                    },
+                }}
+            />
+        </Flex>
+    );
+
+    const dataConfig = {
+        headingIcon: GiFactory,
+        heading: land.landCode,
+        title1: "Land Specifications",
+        detailedFields: [
+            {
+                title: "Property Identification",
+                value: land.id,
+            },
+            {
+                title: "Township Code",
+                value: land.landCode,
+            },
+            {
+                title: "Township Name",
+                value: `Amsterdam ${land.parcelNumber}`,
+            },
+            {
+                title: "Parcel Number",
+                value: land.parcelNumber,
+            },
+            {
+                title: "Area",
+                value: (
                     <>
                         {land.area} m<Text as="sup">2</Text>
                     </>
-                )}
-                {renderedField("Publish Admin", land.publishAdmin)}
-                {renderedField("Publish Date", formattedDate(land.publishDate))}
-                {renderedField("Publish Time", formattedTime(land.publishDate))}
-            </Stack>
-            <Divider my={8} borderColor={DETAIL_INFO_COLOR} />
-            {sectionTitle("Ownership information")}
+                ),
+            },
+            {
+                title: "Publish Admin",
+                value: land.publishAdmin,
+            },
+            {
+                title: "Publish Date",
+                value: formatDate(land.publishDate),
+            },
+            {
+                title: "Publish Time",
+                value: formatTime(land.publishDate),
+            },
+        ],
+        title2: "Ownership information",
+        detailCards: detailCards,
+    };
 
-            {!_.isEmpty(land.transactions) ? (
-                <OwnershipInfoList transactions={land.transactions} />
-            ) : (
-                <Flex w="100" direction="column" align="center">
-                    <Empty
-                        message="This land is currently vacant"
-                        action={{
-                            title: "Transfer",
-                            action: () => {
-                                console.log("Transfer");
-                            },
-                        }}
-                    />
-                </Flex>
-            )}
-        </Box>
-    );
+    return <DetailBase dataConfig={dataConfig} />;
 };
 
 export default LandDetail;

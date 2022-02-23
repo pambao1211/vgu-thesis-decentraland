@@ -1,5 +1,5 @@
 const Decentraland = artifacts.require("Decentraland");
 
-module.exports = function (deployer) {
+module.exports = (deployer) => {
     deployer.deploy(Decentraland);
 };

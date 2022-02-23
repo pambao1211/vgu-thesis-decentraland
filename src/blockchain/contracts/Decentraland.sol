@@ -27,10 +27,13 @@ contract Decentraland{
         uint256 publishDate;
     }
 
-    struct LandOwnershipTransaction{
+    struct OwnershipTransaction{
+        uint256 id;
         uint256 ownerId;
         uint256 ownerIdNumber;
         string ownerFullname;
+        uint256 landId;
+        string landCode;
         address publishAdmin;
         uint256 transferDate;
     }
@@ -61,10 +64,12 @@ contract Decentraland{
     uint256 public parcelNumberSeed = 5000;
     uint256 public landCount = 0;
     uint256 public citizenCount = 0;
+    uint256 public transactionCount = 0;
     mapping(uint256 => Land) public lands;
     mapping(uint256 => Citizen) public citizens;
-    mapping(uint256 => LandOwnershipTransaction[]) public landToTransaction;
-    mapping(uint256 => Land[]) public ownerToLands;
+    mapping(uint256 => OwnershipTransaction) public transactions;
+    mapping(uint256 => uint256[]) public landIdToTrxIds;
+    mapping(uint256 => uint256[]) public citizenIdToOwnedTrxIds;
 
     constructor(){
         owner = msg.sender;
@@ -132,15 +137,83 @@ contract Decentraland{
         );
     }
 
-    function transferLand(uint256 _landId, uint256 _citizenId) external{
-        Land storage land = lands[_landId];
-        Citizen storage citizen = citizens[_citizenId];
-        LandOwnershipTransaction memory transaction = LandOwnershipTransaction(citizen.id, citizen.idNumber, citizen.fullName, msg.sender, block.timestamp);
-        landToTransaction[_landId].push(transaction);
-        ownerToLands[_citizenId].push(land);
+    function isCurrentCitizenLandOwner(uint256 _landId, uint256 _citizenId) view private returns(bool){
+        uint256 landTrxsLength = landIdToTrxIds[_landId].length;
+        uint256[] memory landTrxIds = landIdToTrxIds[_landId];
+        OwnershipTransaction memory lastLandTrx = transactions[landTrxIds[landTrxsLength - 1]];
+        return lastLandTrx.ownerId == _citizenId;
     }
 
-    function getLandTransaction(uint256 _landId) external view returns(LandOwnershipTransaction[] memory){
-        return landToTransaction[_landId];
+    function revokeCurrentLandOwner(uint256 _landId) private{
+        uint256 landTrxsLength = landIdToTrxIds[_landId].length;
+        uint256 trxOwnerId = landIdToTrxIds[_landId][landTrxsLength - 1];
+        uint256 currentOwnerId = transactions[trxOwnerId].ownerId;
+
+        uint256[] storage ownerTrxIds = citizenIdToOwnedTrxIds[currentOwnerId];
+        bool isAfterIndex = false;
+        for(uint256 i = 0; i < ownerTrxIds.length - 1; i++){
+            uint256 currentLandId = transactions[ownerTrxIds[i]].landId;
+            if(currentLandId == _landId){
+                isAfterIndex = true;
+            }
+            if(isAfterIndex){
+                ownerTrxIds[i] = ownerTrxIds[i + 1];
+            }
+
+        }
+        ownerTrxIds.pop();
     }
+
+    function transferLand(uint256 _landId, uint256 _citizenId) external{
+
+        uint256 landTrxsLength = landIdToTrxIds[_landId].length;
+        if(landTrxsLength > 0){
+            if(isCurrentCitizenLandOwner(_landId, _citizenId)){
+                revert("Citizen is the current land's owner");
+            }
+            revokeCurrentLandOwner(_landId);
+        }
+
+        transactionCount++;
+        Land storage land = lands[_landId];
+        Citizen storage citizen = citizens[_citizenId]; 
+        transactions[transactionCount] = OwnershipTransaction(
+            transactionCount,
+            citizen.id,
+            citizen.idNumber,
+            citizen.fullName,
+            land.id,
+            land.landCode,
+            msg.sender,
+            block.timestamp
+        );
+        
+        
+
+
+
+        landIdToTrxIds[_landId].push(transactionCount);
+        citizenIdToOwnedTrxIds[_citizenId].push(transactionCount);
+    }
+
+    function getLandTransactions(uint256 _landId) external view returns(OwnershipTransaction[] memory){
+        uint256[] memory trxIds = landIdToTrxIds[_landId];
+        uint256 arrLength = trxIds.length;
+        OwnershipTransaction[] memory result = new OwnershipTransaction[](arrLength);
+        for(uint256 i = 0; i < arrLength; i++){
+            result[i] = transactions[trxIds[i]];
+        }
+        return result;
+    }
+
+    function getCitizenTransactions(uint256 _citizenId) external view returns(OwnershipTransaction[] memory){
+        uint256[] memory trxIds = citizenIdToOwnedTrxIds[_citizenId];
+        uint256 arrLength = trxIds.length;
+        OwnershipTransaction[] memory result = new OwnershipTransaction[](arrLength);
+        for(uint256 i = 0; i < arrLength; i++){
+            result[i] = transactions[trxIds[i]];
+        }
+        return result;
+    }
+
 }

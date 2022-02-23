@@ -1,4 +1,4 @@
-export const formattedDate = (timestamp) => {
+export const formatDate = (timestamp) => {
     const date = new Date(timestamp * 1000);
     return date.toLocaleString("en-US", {
         weekday: "long",
@@ -8,12 +8,12 @@ export const formattedDate = (timestamp) => {
     });
 };
 
-export const formattedTime = (timestamp) => {
+export const formatTime = (timestamp) => {
     const date = new Date(timestamp * 1000);
     return date.toLocaleTimeString("en-US", { hour12: true });
 };
 
-export const formattedDob = (timestamp) => {
+export const formatDob = (timestamp) => {
     const date = new Date(timestamp * 1000);
     return date.toLocaleString("vie-VN", {
         day: "numeric",

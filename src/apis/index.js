@@ -36,7 +36,7 @@ export const getLand = async (contract, id) => {
 
 export const getLandTransactions = async (contract, landId) => {
     const transactions = await contract.methods
-        .getLandTransaction(landId)
+        .getLandTransactions(landId)
         .call();
     return transactions.map((transaction) => filterNumericKeys(transaction));
 };
