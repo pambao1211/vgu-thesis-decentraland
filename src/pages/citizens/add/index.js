@@ -11,18 +11,19 @@ export default function AddCitizen() {
     const toast = useToast();
 
     const handleSubmit = async (values) => {
-        const { idNumber, fullName, dob } = values;
+        const { idNumber, fullName, gender, dob } = values;
         const formattedDob = new Date(dob).getTime() / 1000;
         try {
             await postCitizen(
                 contract,
                 idNumber,
                 fullName,
+                gender,
                 formattedDob,
                 currentUser
             );
             toast({
-                title: "Citizen Registration Success.",
+                title: "Citizen Registration Success",
                 description: "Citizen A has been successfully registered",
                 status: "success",
                 duration: 5000,
@@ -46,6 +47,7 @@ export default function AddCitizen() {
         initialValues: {
             fullName: "",
             idNumber: "",
+            gender: 0,
             dob: "",
         },
         validate: (values) => {
@@ -72,6 +74,22 @@ export default function AddCitizen() {
                 name: "idNumber",
                 label: "Identification Number",
                 isRequired: true,
+            },
+            {
+                name: "gender",
+                label: "Gender",
+                isRequired: true,
+                type: "select",
+                options: [
+                    {
+                        label: "Male",
+                        value: 0,
+                    },
+                    {
+                        label: "Female",
+                        value: 1,
+                    },
+                ],
             },
             {
                 name: "dob",

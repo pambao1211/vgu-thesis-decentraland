@@ -62,8 +62,16 @@ const LandListItem = ({ land }) => {
                         {`Amsterdam${land.parcelNumber}`}
                     </Box>
                 </Flex>
-                <OverviewDetailSpec isArea icon={BiArea} value={land.area} />
-                <OverviewDetailSpec icon={GrDocumentUser} value={"Vacant"} />
+                <OverviewDetailSpec
+                    type="area"
+                    icon={BiArea}
+                    value={land.area}
+                />
+                <OverviewDetailSpec
+                    type="occupiedStatus"
+                    icon={GrDocumentUser}
+                    value={land.isOccupied ? "Occupied" : "Vacant"}
+                />
             </HStack>
             <Button
                 colorScheme={PRIMARY_COLOR}

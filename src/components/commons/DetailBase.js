@@ -19,7 +19,6 @@ const sectionTitle = (content) => {
             textTransform="uppercase"
             fontWeight="bold"
             mb={5}
-            size="md"
         >
             {content}
         </Text>

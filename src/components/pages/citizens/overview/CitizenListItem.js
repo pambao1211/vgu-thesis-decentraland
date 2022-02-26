@@ -1,17 +1,11 @@
-import { Box, Button, Flex, HStack, Heading } from "@chakra-ui/react";
+import { Button, Flex } from "@chakra-ui/react";
 import { useRouter } from "next/router";
-import Jdenticon from "react-jdenticon";
-import { HiOutlineIdentification } from "react-icons/hi";
-import { BiCake } from "react-icons/bi";
 
+import CitizenListItemContent from "../../../commons/CitizenListItemContent";
 import { BOX_BORDER_COLOR, PRIMARY_COLOR } from "../../../../configs";
-import OverviewDetailSpec from "../../../commons/OverviewDetailSpec";
-import { formatDob } from "../../../../utils";
 
 const CitizenListItem = ({ citizen }) => {
     const router = useRouter();
-    const { id, idNumber, fullName, dob } = citizen;
-
     return (
         <Flex
             justify="space-between"
@@ -23,26 +17,11 @@ const CitizenListItem = ({ citizen }) => {
             borderRadius="md"
             shadow="md"
         >
-            <Flex>
-                <Jdenticon size="60" value={fullName} />
-                <Box pt={1} ml={3}>
-                    <Heading size="md">{fullName}</Heading>
-                    <HStack mt={1} spacing={5}>
-                        <OverviewDetailSpec
-                            icon={HiOutlineIdentification}
-                            value={idNumber}
-                        />
-                        <OverviewDetailSpec
-                            icon={BiCake}
-                            value={formatDob(dob)}
-                        />
-                    </HStack>
-                </Box>
-            </Flex>
+            <CitizenListItemContent citizen={citizen} />
             <Button
                 colorScheme={PRIMARY_COLOR}
                 onClick={(e) => {
-                    router.push(`/citizens/overview/${id}`);
+                    router.push(`/citizens/overview/${citizen.id}`);
                 }}
             >
                 View Profile

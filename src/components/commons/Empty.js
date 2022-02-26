@@ -7,24 +7,18 @@ import {
     DETAIL_INFO_COLOR,
 } from "../../configs";
 
-const Empty = ({ message, action }) => {
+const Empty = ({ message, component, boxSize = 100, ...rest }) => {
     return (
-        <Flex direction="column" align="center" w="100%">
+        <Flex direction="column" align="center" w="100%" {...rest}>
             <Icon
                 color={PRIMARY_PATTERN_COLOR}
-                boxSize={100}
+                boxSize={boxSize}
                 as={AiOutlineInbox}
             />
-            <Box color={DETAIL_INFO_COLOR}>{message}</Box>
-            {action && (
-                <Button
-                    mt={5}
-                    colorScheme={PRIMARY_COLOR}
-                    onClick={action.action}
-                >
-                    {action.title}
-                </Button>
-            )}
+            <Box mb={3} color={DETAIL_INFO_COLOR}>
+                {message}
+            </Box>
+            {component && component}
         </Flex>
     );
 };

@@ -35,9 +35,7 @@ export const getLand = async (contract, id) => {
 };
 
 export const getLandTransactions = async (contract, landId) => {
-    const transactions = await contract.methods
-        .getLandTransactions(landId)
-        .call();
+    const transactions = await contract.methods.getLandTrxs(landId).call();
     return transactions.map((transaction) => filterNumericKeys(transaction));
 };
 
@@ -73,11 +71,12 @@ export const postCitizen = async (
     contract,
     idNumber,
     fullName,
+    gender,
     dob,
     sender
 ) => {
     return contract.methods
-        .publishCitizen(idNumber, fullName, dob)
+        .publishCitizen(idNumber, fullName, gender, dob)
         .send({ from: sender });
 };
 
@@ -91,7 +90,25 @@ export const getCitizens = async (contract) => {
     return citizens;
 };
 
+export const getCitizenByIdNumber = async (contract, idNumber) => {
+    const citizen = await contract.methods
+        .getCitizenByIdNumber(idNumber)
+        .call();
+    return filterNumericKeys(citizen);
+};
+
 export const getCitizen = async (contract, id) => {
     const citizen = await contract.methods.citizens(id).call();
     return filterNumericKeys(citizen);
+};
+
+export const getCitizenOwnedLandTrxs = async (contract, id) => {
+    const transactions = await contract.methods.getCitizenOwnedTrxs(id).call();
+    return transactions.map((transaction) => filterNumericKeys(transaction));
+};
+
+export const transferLand = async (contract, landId, citizenId, sender) => {
+    return contract.methods
+        .transferLand(landId, citizenId)
+        .send({ from: sender });
 };

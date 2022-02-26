@@ -1,49 +1,16 @@
 import { useEffect } from "react";
-import {
-    Box,
-    Flex,
-    Text,
-    Heading,
-    Icon,
-    Stack,
-    Divider,
-} from "@chakra-ui/react";
+import { Flex, Text } from "@chakra-ui/react";
 import { useDispatch, useSelector } from "react-redux";
 import { useRouter } from "next/router";
 import { GiFactory } from "react-icons/gi";
 import _ from "lodash";
 
 import OwnershipInfoList from "../../../../components/pages/lands/overview/OwnershipInfoList";
+import PopoverTransferBtn from "../../../../components/pages/lands/overview/PopoverTransferBtn";
 import Empty from "../../../../components/commons/Empty";
 import { fetchLand } from "../../../../redux/actions";
 import { formatDate, formatTime } from "../../../../utils";
-import { PRIMARY_PATTERN_COLOR, DETAIL_INFO_COLOR } from "../../../../configs";
 import DetailBase from "../../../../components/commons/DetailBase";
-
-const renderedField = (label, content) => {
-    return (
-        <Flex align="center">
-            <Text minW="30%" mr={3} size="md">
-                {label}
-            </Text>
-            <Text color={DETAIL_INFO_COLOR}>{content}</Text>
-        </Flex>
-    );
-};
-
-const sectionTitle = (content) => {
-    return (
-        <Text
-            color={PRIMARY_PATTERN_COLOR}
-            textTransform="uppercase"
-            fontWeight="bold"
-            mb={5}
-            size="md"
-        >
-            {content}
-        </Text>
-    );
-};
 
 const LandDetail = () => {
     const router = useRouter();
@@ -60,17 +27,12 @@ const LandDetail = () => {
     }, []);
 
     const detailCards = !_.isEmpty(land.transactions) ? (
-        <OwnershipInfoList transactions={land.transactions} />
+        <OwnershipInfoList land={land} transactions={land.transactions} />
     ) : (
         <Flex w="100" direction="column" align="center">
             <Empty
                 message="This land is currently vacant"
-                action={{
-                    title: "Transfer",
-                    action: () => {
-                        console.log("Transfer");
-                    },
-                }}
+                component={<PopoverTransferBtn land={land} />}
             />
         </Flex>
     );
@@ -117,7 +79,7 @@ const LandDetail = () => {
                 value: formatTime(land.publishDate),
             },
         ],
-        title2: "Ownership information",
+        title2: "Ownership History",
         detailCards: detailCards,
     };
 

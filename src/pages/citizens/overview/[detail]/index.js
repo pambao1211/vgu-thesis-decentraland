@@ -1,10 +1,12 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/router";
 import { useSelector } from "react-redux";
-import { Box } from "@chakra-ui/react";
+import { Box, Flex } from "@chakra-ui/react";
 
+import LandOwnedInfoList from "../../../../components/pages/citizens/overview/LandOwnedInfoList";
+import Empty from "../../../../components/commons/Empty";
 import DetailBase from "../../../../components/commons/DetailBase";
-import { getCitizen } from "../../../../apis";
+import { getCitizen, getCitizenOwnedLandTrxs } from "../../../../apis";
 import { formatDate, formatTime, formatDob } from "../../../../utils";
 
 const CitizenDetail = () => {
@@ -16,11 +18,23 @@ const CitizenDetail = () => {
     useEffect(() => {
         const fetchCitizen = async () => {
             const citizen = await getCitizen(contract, id);
-            console.log(citizen);
-            setCitizen(citizen);
+            const transactions = await getCitizenOwnedLandTrxs(contract, id);
+            setCitizen({ ...citizen, transactions: transactions });
         };
         fetchCitizen();
     }, []);
+
+    useEffect(() => {
+        console.log(citizen);
+    }, [citizen]);
+
+    const detailCards = !_.isEmpty(citizen.transactions) ? (
+        <LandOwnedInfoList transactions={citizen.transactions} />
+    ) : (
+        <Flex w="100" direction="column" align="center">
+            <Empty message="Citizen does not own any land" />
+        </Flex>
+    );
 
     const dataConfig = {
         headingIcon: citizen.fullName,
@@ -40,6 +54,10 @@ const CitizenDetail = () => {
                 value: citizen.idNumber,
             },
             {
+                title: "Gender",
+                value: "0" ? "Male" : "Female",
+            },
+            {
                 title: "Date of Birth",
                 value: formatDob(citizen.idNumber),
             },
@@ -51,8 +69,13 @@ const CitizenDetail = () => {
                 title: "Publish Date",
                 value: formatDate(citizen.publishDate),
             },
+            {
+                title: "Publish Time",
+                value: formatTime(citizen.publishDate),
+            },
         ],
-        title2: "Ownership information",
+        title2: "Citizen properties",
+        detailCards: detailCards,
     };
 
     return <DetailBase dataConfig={dataConfig}></DetailBase>;

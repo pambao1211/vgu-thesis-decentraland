@@ -12,7 +12,17 @@ module.exports = {
         );
     },
     initCitizens: async (contract) => {
-        await contract.publishCitizen(13131, "Pham Gia Bao", 1645574400);
-        await contract.publishCitizen(123123, "Nguyen Quy Minh", 1645574400);
+        await contract.publishCitizen(
+            1000000000,
+            "Pham Gia Bao",
+            0,
+            1645574400
+        );
+        await contract.publishCitizen(
+            1000000001,
+            "Nguyen Quy Minh",
+            0,
+            1645574400
+        );
     },
 };

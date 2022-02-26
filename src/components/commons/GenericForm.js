@@ -9,6 +9,7 @@ import {
     Stack,
     Grid,
     GridItem,
+    Select,
 } from "@chakra-ui/react";
 import { Formik, Form, Field } from "formik";
 
@@ -23,6 +24,33 @@ const GenericForm = (props) => {
         const { isRequired, handleFileChange, ...rest } = props;
         const error = form.errors[name] && form.touched[name];
 
+        const renderedInput = (type) => {
+            switch (type) {
+                case "file":
+                    return (
+                        <Input
+                            onChange={(e) => {
+                                handleFileChange(e, form);
+                            }}
+                            name={name}
+                            {...rest}
+                        />
+                    );
+                case "select":
+                    return (
+                        <Select {...field} {...rest}>
+                            {rest.options.map((option) => (
+                                <option key={option.label} value={option.value}>
+                                    {option.label}
+                                </option>
+                            ))}
+                        </Select>
+                    );
+                default:
+                    return <Input {...field} {...rest} />;
+            }
+        };
+
         return (
             <FormControl isRequired={isRequired} w="100%" isInvalid={error}>
                 <Grid templateColumns="repeat(10, 1fr)" gap={3}>
@@ -31,19 +59,7 @@ const GenericForm = (props) => {
                             {label}
                         </FormLabel>
                     </GridItem>
-                    <GridItem colSpan={7}>
-                        {props.type === "file" ? (
-                            <Input
-                                onChange={(e) => {
-                                    handleFileChange(e, form);
-                                }}
-                                name={name}
-                                {...rest}
-                            />
-                        ) : (
-                            <Input {...field} {...rest} />
-                        )}
-                    </GridItem>
+                    <GridItem colSpan={7}>{renderedInput(props.type)}</GridItem>
                     <GridItem colSpan={2}>
                         <FormErrorMessage mt={0}>
                             {form.errors[name]}

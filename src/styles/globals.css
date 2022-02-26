@@ -25,3 +25,8 @@ a {
 .css-1pwkzcn[data-disabled] {
     opacity: 100 !important;
 }
+
+/* popover */
+.css-1qq679y {
+    z-index: 1000 !important;
+}
