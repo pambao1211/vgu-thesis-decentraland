@@ -12,8 +12,9 @@ export default function AddLand() {
 
     const handleSubmit = async (values) => {
         const { owner, description, file } = values;
+        console.log(values);
         try {
-            await dispatch(publishLand(owner, description, file, currentUser));
+            await dispatch(publishLand(description, file, currentUser));
             toast({
                 title: "Land Registration Success.",
                 description: "Land A has been successfully registered",
@@ -49,18 +50,14 @@ export default function AddLand() {
     const formProperties = {
         heading: "Land Registration Form",
         initialValues: {
-            owner: "",
             description: "",
             file: null,
             area: "",
         },
         validate: (values) => {
             const error = {};
-            if (!values.owner) {
-                error.owner = "You must enter your email";
-            }
             if (!values.description) {
-                error.description = "You must enter your password";
+                error.description = "You must enter description";
             }
             if (!values.file) {
                 error.file = "You must upload meta-data file";
@@ -69,11 +66,6 @@ export default function AddLand() {
         },
         handleSubmit: handleSubmit,
         fields: [
-            {
-                name: "owner",
-                label: "Owner",
-                isRequired: true,
-            },
             {
                 name: "description",
                 label: "Description",
@@ -84,7 +76,7 @@ export default function AddLand() {
                 label: "File",
                 type: "file",
                 isRequired: true,
-                handleFileChange: handleFileChange,
+                onChange: handleFileChange,
             },
             {
                 name: "area",

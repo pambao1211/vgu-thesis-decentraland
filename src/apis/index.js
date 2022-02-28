@@ -39,9 +39,9 @@ export const getLandTransactions = async (contract, landId) => {
     return transactions.map((transaction) => filterNumericKeys(transaction));
 };
 
-export const postLand = async (contract, owner, description, hash, sender) => {
+export const postLand = async (contract, description, hash, sender) => {
     const uploadResult = await contract.methods
-        .publishLand(owner, description, hash)
+        .publishLand(description, hash)
         .send({ from: sender });
     const newLand = uploadResult.events.LandPublished.returnValues;
     const { center, area, paths } = await getLandSpecifications(

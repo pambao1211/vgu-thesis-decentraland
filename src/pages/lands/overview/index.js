@@ -1,9 +1,10 @@
 import { useSelector } from "react-redux";
-import { Stack } from "@chakra-ui/react";
+import { Button, Stack } from "@chakra-ui/react";
 import { useRouter } from "next/router";
 
 import LandListItem from "../../../components/pages/lands/overview/LandListItem";
 import Empty from "../../../components/commons/Empty";
+import { PRIMARY_COLOR } from "../../../configs";
 
 const LandsOverview = () => {
     const router = useRouter();
@@ -24,12 +25,16 @@ const LandsOverview = () => {
             {lands.length === 0 ? (
                 <Empty
                     message="There is no land uploaded yet"
-                    action={{
-                        title: "Add Land",
-                        action: () => {
-                            router.push("/lands/add");
-                        },
-                    }}
+                    component={
+                        <Button
+                            colorScheme={PRIMARY_COLOR}
+                            onClick={() => {
+                                router.push("/lands/add");
+                            }}
+                        >
+                            Add Land
+                        </Button>
+                    }
                 />
             ) : (
                 renderedLands()

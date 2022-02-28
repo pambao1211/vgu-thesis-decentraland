@@ -10,7 +10,6 @@ contract Decentraland{
         uint256 id;
         uint256 parcelNumber;
         string landCode;
-        address owner;
         string description;
         string landCoordinatorHash;
         bool isOccupied;
@@ -43,7 +42,6 @@ contract Decentraland{
         uint256 id,
         uint256 parcelNumber,
         string landCode,
-        address owner,
         string description,
         string landCoordinatorHash,
         bool isOccupied,
@@ -103,72 +101,6 @@ contract Decentraland{
         _;
     }
 
-    function publishLand(
-        address _landOwner,
-        string calldata _description,
-        string calldata _landCoordinatorHash
-    ) external{
-        require(bytes(_landCoordinatorHash).length > 0);
-        require(bytes(_description).length > 0);
-        require(msg.sender != address(0));
-
-        landCount++;
-        uint256 parcelNumber = parcelNumberSeed + landCount;
-        string memory landCode = string(abi.encodePacked(townshipCode, Strings.toString(parcelNumber)));
-        uint256 publishDate = block.timestamp;
-
-        lands[landCount] = Land(
-            landCount,
-            parcelNumber,
-            landCode,
-            _landOwner,
-            _description,
-            _landCoordinatorHash,
-            false,
-            msg.sender,
-            publishDate
-        );
-        emit LandPublished(
-            landCount,
-            parcelNumber,
-            landCode,
-            _landOwner,
-            _description,
-            _landCoordinatorHash,
-            false,
-            msg.sender,
-            publishDate
-        );
-    }
-
-    function publishCitizen (
-        uint256 _idNumber, string calldata _fullName, Gender _gender, uint256 _dob
-    ) external validCitizenIdNumber(_idNumber){
-        require(bytes(_fullName).length > 0);
-        require(_dob > 0);
-        citizenCount++;
-        citizens[citizenCount] = Citizen(
-            citizenCount,
-            _idNumber,
-            _fullName,
-            _gender,
-            _dob,
-            msg.sender,
-            block.timestamp
-        );
-        idNumbersToCitizenId[_idNumber] = citizenCount;
-
-        emit CitizenPublished(
-            citizenCount,
-            _idNumber,
-            _fullName,
-            _gender,
-            _dob,
-            msg.sender,
-            block.timestamp
-        );
-    }
-
     function isCitizenLandOwner(uint256 _landId, uint256 _citizenId) view private returns(bool){
         uint256 landTrxsLength = landIdToTrxIds[_landId].length;
         uint256[] memory landTrxIds = landIdToTrxIds[_landId];
@@ -194,6 +126,96 @@ contract Decentraland{
 
         }
         ownerTrxIds.pop();
+    }
+
+        function getCitizenByIdNumber(uint256 _idNumber) external view validCitizenIdNumber(_idNumber) returns(Citizen memory){
+        return citizens[idNumbersToCitizenId[_idNumber]];
+    }
+
+    function getLandTrxs(uint256 _landId) external view validLandId(_landId) returns(landTransferedTrx[] memory) {
+        uint256[] memory trxIds = landIdToTrxIds[_landId];
+        uint256 arrLength = trxIds.length;
+        landTransferedTrx[] memory result = new landTransferedTrx[](arrLength);
+        for(uint256 i = 0; i < arrLength; i++){
+            result[i] = landTransferedTrxs[trxIds[i]];
+        }
+        return result;
+    }
+
+    function getCitizenOwnedTrxs(uint256 _citizenId) external view validCitizenId(_citizenId) returns(landTransferedTrx[] memory){
+        uint256[] memory trxIds = citizenIdToOwnedLandTrxIds[_citizenId];
+        uint256 arrLength = trxIds.length;
+        landTransferedTrx[] memory result = new landTransferedTrx[](arrLength);
+        for(uint256 i = 0; i < arrLength; i++){
+            result[i] = landTransferedTrxs[trxIds[i]];
+        }
+        return result;
+    }
+
+    function publishLand(
+        string calldata _description,
+        string calldata _landCoordinatorHash
+    ) external{
+        require(bytes(_landCoordinatorHash).length > 0, "Land hash specification is required");
+        require(bytes(_description).length > 0, "Description is required");
+        require(msg.sender != address(0), "Invalid address");
+
+        landCount++;
+        uint256 parcelNumber = parcelNumberSeed + landCount;
+        string memory landCode = string(abi.encodePacked(townshipCode, Strings.toString(parcelNumber)));
+        uint256 publishDate = block.timestamp;
+
+        lands[landCount] = Land(
+            landCount,
+            parcelNumber,
+            landCode,
+            _description,
+            _landCoordinatorHash,
+            false,
+            msg.sender,
+            publishDate
+        );
+        emit LandPublished(
+            landCount,
+            parcelNumber,
+            landCode,
+            _description,
+            _landCoordinatorHash,
+            false,
+            msg.sender,
+            publishDate
+        );
+    }
+
+    function publishCitizen (
+        uint256 _idNumber, string calldata _fullName, Gender _gender, uint256 _dob
+    ) external validCitizenIdNumber(_idNumber){
+        bool isIdNumberUnique = idNumbersToCitizenId[_idNumber] == 0;
+        require(isIdNumberUnique, "Citizen id number already exist");
+        require(bytes(_fullName).length > 0, "Full name is required");
+        require(_dob < block.timestamp, "Invalid dob");
+        citizenCount++;
+        uint256 publishDate = block.timestamp;
+        citizens[citizenCount] = Citizen(
+            citizenCount,
+            _idNumber,
+            _fullName,
+            _gender,
+            _dob,
+            msg.sender,
+            publishDate
+        );
+        idNumbersToCitizenId[_idNumber] = citizenCount;
+
+        emit CitizenPublished(
+            citizenCount,
+            _idNumber,
+            _fullName,
+            _gender,
+            _dob,
+            msg.sender,
+            publishDate
+        );
     }
 
     function transferLand(uint256 _landId, uint256 _citizenIdNumber) external validLandId(_landId) validCitizenIdNumber(_citizenIdNumber){
@@ -222,30 +244,6 @@ contract Decentraland{
         landIdToTrxIds[_landId].push(transactionCount);
         citizenIdToOwnedLandTrxIds[citizenId].push(transactionCount);
         emit LandTransfer(transactionCount, _landId, citizenId, msg.sender, block.timestamp);
-    }
-
-    function getCitizenByIdNumber(uint256 _idNumber) public view validCitizenIdNumber(_idNumber) returns(Citizen memory){
-        return citizens[idNumbersToCitizenId[_idNumber]];
-    }
-
-    function getLandTrxs(uint256 _landId) external view validLandId(_landId) returns(landTransferedTrx[] memory) {
-        uint256[] memory trxIds = landIdToTrxIds[_landId];
-        uint256 arrLength = trxIds.length;
-        landTransferedTrx[] memory result = new landTransferedTrx[](arrLength);
-        for(uint256 i = 0; i < arrLength; i++){
-            result[i] = landTransferedTrxs[trxIds[i]];
-        }
-        return result;
-    }
-
-    function getCitizenOwnedTrxs(uint256 _citizenId) external view validCitizenId(_citizenId) returns(landTransferedTrx[] memory){
-        uint256[] memory trxIds = citizenIdToOwnedLandTrxIds[_citizenId];
-        uint256 arrLength = trxIds.length;
-        landTransferedTrx[] memory result = new landTransferedTrx[](arrLength);
-        for(uint256 i = 0; i < arrLength; i++){
-            result[i] = landTransferedTrxs[trxIds[i]];
-        }
-        return result;
     }
 
 }

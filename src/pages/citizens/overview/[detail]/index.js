@@ -8,11 +8,13 @@ import Empty from "../../../../components/commons/Empty";
 import DetailBase from "../../../../components/commons/DetailBase";
 import { getCitizen, getCitizenOwnedLandTrxs } from "../../../../apis";
 import { formatDate, formatTime, formatDob } from "../../../../utils";
+import LoadingSkeleton from "../../../../components/commons/LoadingSkeleton";
 
 const CitizenDetail = () => {
     const router = useRouter();
     const contract = useSelector((state) => state.contractReducer);
     const [citizen, setCitizen] = useState({});
+    const [hasFetchedTrx, setHashFetchedTrx] = useState(false);
     const { detail: id } = router.query;
 
     useEffect(() => {
@@ -20,21 +22,25 @@ const CitizenDetail = () => {
             const citizen = await getCitizen(contract, id);
             const transactions = await getCitizenOwnedLandTrxs(contract, id);
             setCitizen({ ...citizen, transactions: transactions });
+            setHashFetchedTrx(true);
         };
         fetchCitizen();
     }, []);
 
-    useEffect(() => {
-        console.log(citizen);
-    }, [citizen]);
+    const renderDetailCards = () => {
+        if (!hasFetchedTrx) {
+            return <LoadingSkeleton numberSkeleton={3} />;
+        }
+        return !_.isEmpty(citizen.transactions) ? (
+            <LandOwnedInfoList transactions={citizen.transactions} />
+        ) : (
+            <Flex w="100" direction="column" align="center">
+                <Empty message="Citizen does not own any land" />
+            </Flex>
+        );
+    };
 
-    const detailCards = !_.isEmpty(citizen.transactions) ? (
-        <LandOwnedInfoList transactions={citizen.transactions} />
-    ) : (
-        <Flex w="100" direction="column" align="center">
-            <Empty message="Citizen does not own any land" />
-        </Flex>
-    );
+    const detailCards = renderDetailCards();
 
     const dataConfig = {
         headingIcon: citizen.fullName,
@@ -78,7 +84,7 @@ const CitizenDetail = () => {
         detailCards: detailCards,
     };
 
-    return <DetailBase dataConfig={dataConfig}></DetailBase>;
+    return <DetailBase dataConfig={dataConfig} />;
 };
 
 export default CitizenDetail;

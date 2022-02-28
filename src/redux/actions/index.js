@@ -31,12 +31,11 @@ export const getContract = () => async (dispatch) => {
 };
 
 export const publishLand =
-    (owner, description, file, currentUser) => async (dispatch, getState) => {
+    (description, file, currentUser) => async (dispatch, getState) => {
         const ipfsResult = await postIpfs(file);
         const contract = getState().contractReducer;
         const newLand = await postLand(
             contract,
-            owner,
             description,
             ipfsResult.path,
             currentUser

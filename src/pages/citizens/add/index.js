@@ -1,17 +1,21 @@
+import { useState } from "react";
 import { Box, useToast } from "@chakra-ui/react";
 import { useSelector } from "react-redux";
 
 import { useAuth } from "../../../contexts/AuthContext";
-import { postCitizen } from "../../../apis";
+import { getCitizen, getCitizenByIdNumber, postCitizen } from "../../../apis";
 import GenericForm from "../../../components/commons/GenericForm";
 
 export default function AddCitizen() {
+    const toast = useToast();
+    const [isIdNumberExisted, setIsIdNumberExisted] = useState(true);
+    const [isCheckingIdNum, setIsCheckingIdNum] = useState(false);
     const contract = useSelector((state) => state.contractReducer);
     const { currentUser } = useAuth();
-    const toast = useToast();
 
     const handleSubmit = async (values) => {
         const { idNumber, fullName, gender, dob } = values;
+        console.log(values);
         const formattedDob = new Date(dob).getTime() / 1000;
         try {
             await postCitizen(
@@ -42,6 +46,40 @@ export default function AddCitizen() {
         }
     };
 
+    const handleCitizenIdNumChange = async (e, form) => {
+        if (e.target.value.length > 10) return;
+        form.setFieldValue("idNumber", e.target.value);
+    };
+
+    const handleValidate = async (values) => {
+        const error = {};
+        const validateIdNumber = async (idNumber) => {
+            if (!idNumber) {
+                error.idNumber = "You must enter idNumber";
+                return;
+            }
+            if (idNumber.length == 10) {
+                const citizen = await getCitizenByIdNumber(contract, idNumber);
+                if (citizen.id != "0") {
+                    error.idNumber = "Id number already existed";
+                }
+                return;
+            }
+            if (idNumber.length < 10) {
+                error.idNumber = "Id number must have 10 digits";
+            }
+        };
+
+        if (!values.fullName) {
+            error.fullName = "You must enter full name";
+        }
+        await validateIdNumber(values.idNumber);
+        if (!values.dob) {
+            error.dob = "You must enter date of birth";
+        }
+        return error;
+    };
+
     const formProperties = {
         heading: "Citizen Registration Form",
         initialValues: {
@@ -50,19 +88,7 @@ export default function AddCitizen() {
             gender: 0,
             dob: "",
         },
-        validate: (values) => {
-            const error = {};
-            if (!values.fullName) {
-                error.fullName = "You must enter full name";
-            }
-            if (!values.idNumber) {
-                error.idNumber = "You must enter id number";
-            }
-            if (!values.dob) {
-                error.dob = "You must enter id date of birth";
-            }
-            return error;
-        },
+        validate: handleValidate,
         handleSubmit: handleSubmit,
         fields: [
             {
@@ -73,7 +99,10 @@ export default function AddCitizen() {
             {
                 name: "idNumber",
                 label: "Identification Number",
+                type: "citizenIdNumber",
                 isRequired: true,
+                disabled: isCheckingIdNum,
+                onChange: handleCitizenIdNumChange,
             },
             {
                 name: "gender",

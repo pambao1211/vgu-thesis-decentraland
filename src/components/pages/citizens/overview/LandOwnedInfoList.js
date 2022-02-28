@@ -1,5 +1,6 @@
 import React from "react";
 import { useRouter } from "next/router";
+import { useDispatch, useSelector } from "react-redux";
 import {
     Stack,
     Box,
@@ -11,18 +12,49 @@ import {
 } from "@chakra-ui/react";
 import { GiFactory } from "react-icons/gi";
 
-import { formatDate, formatTime } from "../../../../utils";
-import { DETAIL_INFO_COLOR, PRIMARY_COLOR } from "../../../../configs";
 import OwnedTooltipIcon from "../../../commons/OwnedTooltipIcon";
+import { formatDate, formatTime } from "../../../../utils";
+import { selectLand } from "../../../../redux/actions";
+import {
+    DETAIL_INFO_COLOR,
+    PRIMARY_COLOR,
+    PRIMARY_PATTERN_COLOR,
+    BOX_BORDER_COLOR,
+} from "../../../../configs";
+
+const styleConfigs = {
+    selectedConfig: {
+        iconColor: PRIMARY_PATTERN_COLOR,
+        borderColor: PRIMARY_COLOR,
+    },
+    defaultConfig: {
+        iconColor: DETAIL_INFO_COLOR,
+        borderColor: BOX_BORDER_COLOR,
+    },
+};
 
 const LandOwnedInfoList = ({ transactions }) => {
     const router = useRouter();
+    const dispatch = useDispatch();
+    const selectedLand = useSelector((state) => state.landReducer.selectedLand);
 
     const ownedLandCard = (transaction) => {
         const { id, landId, landCode, transferDate } = transaction;
+        const config =
+            landId === selectedLand.id
+                ? styleConfigs.selectedConfig
+                : styleConfigs.defaultConfig;
         return (
             <React.Fragment key={id}>
-                <Flex w="100%" justify="space-between" align="center">
+                <Flex
+                    w="100%"
+                    justify="space-between"
+                    align="center"
+                    _hover={{ cursor: "pointer" }}
+                    onClick={() => {
+                        dispatch(selectLand(transaction.landId));
+                    }}
+                >
                     <HStack
                         w="80%"
                         color={DETAIL_INFO_COLOR}
@@ -32,7 +64,7 @@ const LandOwnedInfoList = ({ transactions }) => {
                         <Icon
                             as={GiFactory}
                             boxSize={12}
-                            color={DETAIL_INFO_COLOR}
+                            color={config.iconColor}
                         />
                         <Box w="30%">
                             <Text
@@ -41,9 +73,10 @@ const LandOwnedInfoList = ({ transactions }) => {
                                     color: PRIMARY_COLOR,
                                     cursor: "pointer",
                                 }}
-                                onClick={() =>
-                                    router.push(`/lands/overview/${landId}`)
-                                }
+                                onClick={(e) => {
+                                    e.stopPropagation();
+                                    router.push(`/lands/overview/${landId}`);
+                                }}
                             >
                                 {landCode}
                             </Text>
@@ -54,9 +87,9 @@ const LandOwnedInfoList = ({ transactions }) => {
                             <Text>{formatTime(transferDate)}</Text>
                         </Box>
                     </HStack>
-                    <OwnedTooltipIcon />
+                    <OwnedTooltipIcon color={config.iconColor} />
                 </Flex>
-                <Divider my={8} borderColor={DETAIL_INFO_COLOR} />
+                <Divider my={8} borderColor={config.borderColor} />
             </React.Fragment>
         );
     };
@@ -66,7 +99,7 @@ const LandOwnedInfoList = ({ transactions }) => {
     };
 
     return (
-        <Stack pl={5} spacing={3}>
+        <Stack maxH="300px" overflowY="auto" pl={5} spacing={3}>
             {renderOwnedLandCards(transactions)}
         </Stack>
     );

@@ -62,7 +62,7 @@ const OwnershipInfoList = ({ land, transactions }) => {
     };
 
     return (
-        <Stack pl={5} spacing={3}>
+        <Stack maxH="300px" overflowY="auto" pl={5} spacing={3}>
             {renderOwnerCards(transactions)}
         </Stack>
     );

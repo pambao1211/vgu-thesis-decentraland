@@ -10,6 +10,7 @@ import {
     Grid,
     GridItem,
     Select,
+    Flex,
 } from "@chakra-ui/react";
 import { Formik, Form, Field } from "formik";
 
@@ -21,7 +22,7 @@ const GenericForm = (props) => {
 
     const renderedField = ({ field, form, label, ...props }) => {
         const { name } = field;
-        const { isRequired, handleFileChange, ...rest } = props;
+        const { isRequired, handleFileChange, onChange, ...rest } = props;
         const error = form.errors[name] && form.touched[name];
 
         const renderedInput = (type) => {
@@ -29,10 +30,8 @@ const GenericForm = (props) => {
                 case "file":
                     return (
                         <Input
-                            onChange={(e) => {
-                                handleFileChange(e, form);
-                            }}
                             name={name}
+                            onChange={(e) => onChange(e, form)}
                             {...rest}
                         />
                     );
@@ -45,6 +44,18 @@ const GenericForm = (props) => {
                                 </option>
                             ))}
                         </Select>
+                    );
+                case "citizenIdNumber":
+                    return (
+                        <Flex>
+                            <Input
+                                name={name}
+                                value={form.values[name]}
+                                onBlur={field.onBlur}
+                                onChange={(e) => onChange(e, form)}
+                                {...rest}
+                            />
+                        </Flex>
                     );
                 default:
                     return <Input {...field} {...rest} />;
