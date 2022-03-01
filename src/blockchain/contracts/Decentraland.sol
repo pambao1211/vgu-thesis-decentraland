@@ -220,6 +220,7 @@ contract Decentraland{
 
     function transferLand(uint256 _landId, uint256 _citizenIdNumber) external validLandId(_landId) validCitizenIdNumber(_citizenIdNumber){
         uint256 citizenId = idNumbersToCitizenId[_citizenIdNumber];
+        require(citizenId != 0, "Citizen id does not exist");
         uint256 landTrxsLength = landIdToTrxIds[_landId].length;
         if(landTrxsLength > 0){
             if(isCitizenLandOwner(_landId, citizenId)){
