@@ -112,3 +112,32 @@ export const transferLand = async (contract, landId, citizenId, sender) => {
         .transferLand(landId, citizenId)
         .send({ from: sender });
 };
+
+export const getAdmins = async (contract) => {
+    const adminCount = await contract.methods.adminCount().call();
+    const admins = [];
+    for (let i = 1; i <= adminCount; i++) {
+        const admin = await contract.methods.admins(i).call();
+        admins.push(filterNumericKeys(admin));
+    }
+    return admins;
+};
+
+export const getAdmin = async (contract, id) => {
+    const admin = await contract.methods.admins(id).call();
+    return filterNumericKeys(admin);
+};
+
+export const postAdmin = async (contract, title, address, sender) => {
+    console.log("Post admin");
+    return contract.methods.publishAdmin(title, address).send({ from: sender });
+};
+
+export const getAdminByAddress = async (contract, address) => {
+    const admin = await contract.methods.getAdminByAddress(address).call();
+    return filterNumericKeys(admin);
+};
+
+export const checkIsContractOwner = async (contract, sender) => {
+    return contract.methods.checkIsContractOwner(sender).call();
+};

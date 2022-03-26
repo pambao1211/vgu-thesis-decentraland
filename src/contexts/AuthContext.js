@@ -1,9 +1,11 @@
 import React, { useContext, useEffect, useState } from "react";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import Web3 from "web3";
 
 import Loading from "../components/Loading";
+import NotAuthAdmin from "../components/auth/NotAuthAdmin";
 import { getContract } from "../redux/actions";
+import { checkIsContractOwner, getAdminByAddress } from "../apis";
 
 const AuthContext = React.createContext();
 const useAuth = () => {
@@ -12,8 +14,10 @@ const useAuth = () => {
 
 const AuthProvider = ({ children }) => {
     const [currentUser, setCurrentUser] = useState(null);
+    const [currentAdmin, setCurrentAdmin] = useState(null);
     const [isLoading, setIsLoading] = useState(true);
     const dispatch = useDispatch();
+    const contract = useSelector((state) => state.contractReducer);
     useEffect(() => {
         const loadWeb3AndContract = async () => {
             if (window.ethereum || window.web3) {
@@ -44,16 +48,45 @@ const AuthProvider = ({ children }) => {
                 );
             }
         };
-
         loadWeb3AndContract();
     }, []);
+
+    useEffect(() => {
+        setIsLoading(true);
+        if (!contract) {
+            return;
+        }
+        const loadAdminInfo = async () => {
+            const admin = await getAdminByAddress(contract, currentUser);
+            const isContractOwner = await checkIsContractOwner(
+                contract,
+                currentUser
+            );
+            console.log(isContractOwner);
+            setCurrentAdmin({ ...admin, isContractOwner });
+            setIsLoading(false);
+        };
+        loadAdminInfo();
+    }, [contract, currentUser]);
+
     const value = {
         currentUser,
+        currentAdmin,
+    };
+
+    const renderContentWithAuth = () => {
+        if (isLoading) {
+            return <Loading />;
+        }
+        if (currentAdmin.id == "0") {
+            return <NotAuthAdmin />;
+        }
+        return children;
     };
 
     return (
         <AuthContext.Provider value={value}>
-            {isLoading ? <Loading /> : children}
+            {renderContentWithAuth()}
         </AuthContext.Provider>
     );
 };

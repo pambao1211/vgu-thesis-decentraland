@@ -12,7 +12,7 @@ module.exports = {
     initCitizens: async (contract) => {
         await contract.publishCitizen(
             1000000000,
-            "Pham Gia Bao",
+            "Pham Gia Bao1",
             0,
             1645574400
         );

@@ -73,9 +73,13 @@ const DetailBase = ({ dataConfig }) => {
             <Stack pl={5} spacing={3}>
                 {renderedFields(detailedFields)}
             </Stack>
-            <Divider my={8} borderColor={DETAIL_INFO_COLOR} />
-            {sectionTitle(title2)}
-            {detailCards}
+            {title2 && (
+                <>
+                    <Divider my={8} borderColor={DETAIL_INFO_COLOR} />
+                    {sectionTitle(title2)}
+                    {detailCards}
+                </>
+            )}
         </Box>
     );
 };

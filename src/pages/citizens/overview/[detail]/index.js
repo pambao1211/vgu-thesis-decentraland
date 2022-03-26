@@ -19,9 +19,9 @@ const CitizenDetail = () => {
 
     useEffect(() => {
         const fetchCitizen = async () => {
-            const citizen = await getCitizen(contract, id);
+            const citizenResult = await getCitizen(contract, id);
             const transactions = await getCitizenOwnedLandTrxs(contract, id);
-            setCitizen({ ...citizen, transactions: transactions });
+            setCitizen({ ...citizenResult, transactions: transactions });
             setHashFetchedTrx(true);
         };
         fetchCitizen();

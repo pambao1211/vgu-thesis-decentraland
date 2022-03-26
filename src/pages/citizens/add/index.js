@@ -1,14 +1,13 @@
 import { useState } from "react";
-import { Box, useToast } from "@chakra-ui/react";
+import { useToast } from "@chakra-ui/react";
 import { useSelector } from "react-redux";
 
 import { useAuth } from "../../../contexts/AuthContext";
-import { getCitizen, getCitizenByIdNumber, postCitizen } from "../../../apis";
+import { getCitizenByIdNumber, postCitizen } from "../../../apis";
 import GenericForm from "../../../components/commons/GenericForm";
 
 export default function AddCitizen() {
     const toast = useToast();
-    const [isIdNumberExisted, setIsIdNumberExisted] = useState(true);
     const [isCheckingIdNum, setIsCheckingIdNum] = useState(false);
     const contract = useSelector((state) => state.contractReducer);
     const { currentUser } = useAuth();

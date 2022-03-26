@@ -3,7 +3,7 @@ pragma solidity ^0.8.0;
 
 import "@openzeppelin/contracts/utils/Strings.sol";
 
-contract Decentraland{
+contract Decentraland{  
     enum Gender{MALE, FEMALE}
 
     struct Land{
@@ -23,6 +23,15 @@ contract Decentraland{
         string fullName;
         Gender gender;
         uint256 dob;
+        address publishAdmin;
+        uint256 publishDate;
+    }
+
+    struct Admin{
+        uint256 id;
+        string title;
+        string adminCode;
+        address adminAddr;
         address publishAdmin;
         uint256 publishDate;
     }
@@ -59,6 +68,15 @@ contract Decentraland{
         uint256 publishDate
     );
 
+    event AdminPublished(
+        uint256 id,
+        string title,
+        string admincode,
+        address newAdmin,
+        address publishAdmin,
+        uint256 publishDate
+    );
+
     event LandTransfer(
         uint256 id,
         uint256 landId,
@@ -67,22 +85,29 @@ contract Decentraland{
         uint256 trxTime
     );
 
-    string public constant name = "Decentraland";
-    string private constant townshipCode = "ASD";
+    string public constant NAME = "Decentraland";
+    string private constant TOWNSHIP_CODE = "ASD";
+    string private constant ADMIN_CODE = "ADMIN";
+    uint256 private constant PARCEL_NUMBER_SEED = 5000;
+    uint256 private constant ADMIN_NUMBER_SEED = 3000;
     address public owner;
-    uint256 private parcelNumberSeed = 5000;
     uint256 public landCount = 0;
     uint256 public citizenCount = 0;
+    uint256 public adminCount = 0;
     uint256 private transactionCount = 0;
     mapping(uint256 => Land) public lands;
     mapping(uint256 => Citizen) public citizens;
+    mapping(uint256 => Admin) public admins;
+
     mapping(uint256 => uint256) public idNumbersToCitizenId;
+    mapping(address => uint256) public addressToAdminId;
     mapping(uint256 => landTransferedTrx) public landTransferedTrxs;
     mapping(uint256 => uint256[]) private landIdToTrxIds;
     mapping(uint256 => uint256[]) private citizenIdToOwnedLandTrxIds;
 
     constructor(){
         owner = msg.sender;
+        publishAdmin("Contract owner", msg.sender);
     }
 
     modifier validLandId(uint256 _landId){
@@ -101,11 +126,32 @@ contract Decentraland{
         _;
     }
 
+
+    modifier onlyOwner(address _sender){
+        require(owner == _sender, "Sender must be the contract creator");
+        _;
+    }
+
     function isCitizenLandOwner(uint256 _landId, uint256 _citizenId) view private returns(bool){
         uint256 landTrxsLength = landIdToTrxIds[_landId].length;
         uint256[] memory landTrxIds = landIdToTrxIds[_landId];
         landTransferedTrx memory lastLandTrx = landTransferedTrxs[landTrxIds[landTrxsLength - 1]];
         return lastLandTrx.ownerId == _citizenId;
+    }
+
+    function isNewAdminAddressValid(address _newAdmin) private view returns(bool){
+        if(_newAdmin == address(0)){
+            return false;
+        }
+        if(_newAdmin != address(_newAdmin)){
+            return false;
+        }
+        bool isNewAdminUnique = addressToAdminId[_newAdmin] == 0;
+        if(!isNewAdminUnique){
+            return false;
+        }
+        return true;
+
     }
 
     function revokeCurrentOwner(uint256 _landId) private{
@@ -128,7 +174,7 @@ contract Decentraland{
         ownerTrxIds.pop();
     }
 
-        function getCitizenByIdNumber(uint256 _idNumber) external view validCitizenIdNumber(_idNumber) returns(Citizen memory){
+    function getCitizenByIdNumber(uint256 _idNumber) external view validCitizenIdNumber(_idNumber) returns(Citizen memory){
         return citizens[idNumbersToCitizenId[_idNumber]];
     }
 
@@ -161,8 +207,8 @@ contract Decentraland{
         require(msg.sender != address(0), "Invalid address");
 
         landCount++;
-        uint256 parcelNumber = parcelNumberSeed + landCount;
-        string memory landCode = string(abi.encodePacked(townshipCode, Strings.toString(parcelNumber)));
+        uint256 parcelNumber = PARCEL_NUMBER_SEED + landCount;
+        string memory landCode = string(abi.encodePacked(TOWNSHIP_CODE, Strings.toString(parcelNumber)));
         uint256 publishDate = block.timestamp;
 
         lands[landCount] = Land(
@@ -247,4 +293,24 @@ contract Decentraland{
         emit LandTransfer(transactionCount, _landId, citizenId, msg.sender, block.timestamp);
     }
 
+    function publishAdmin(string memory _title, address _newAdmin) public onlyOwner(msg.sender){
+        require(bytes(_title).length > 0, "Title must not be empty");
+        require(isNewAdminAddressValid(_newAdmin), "Admin address not valid or aldready exist");
+        adminCount++;
+        uint256 adminNumber = ADMIN_NUMBER_SEED + adminCount;
+        string memory adminCode = string(abi.encodePacked(ADMIN_CODE, Strings.toString(adminNumber)));
+        uint256 publishDate = block.timestamp;
+        admins[adminCount] = Admin(adminCount, _title, adminCode, _newAdmin, msg.sender, publishDate); 
+        addressToAdminId[_newAdmin] = adminCount;
+
+        emit AdminPublished(adminCount, _title, adminCode, _newAdmin, msg.sender, publishDate);
+    }
+
+    function getAdminByAddress(address _address) external view returns(Admin memory){
+        return admins[addressToAdminId[_address]];
+    }
+
+    function checkIsContractOwner(address _address) external view returns(bool){
+        return owner == _address;
+    }
 }

@@ -21,3 +21,10 @@ export const formatDob = (timestamp) => {
         year: "numeric",
     });
 };
+
+export const formatAddress = (address, length) => {
+    return `${address.substring(0, length)}...${address.substring(
+        address.length - length,
+        address.length
+    )}`;
+};

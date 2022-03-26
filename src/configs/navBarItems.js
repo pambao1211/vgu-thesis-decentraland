@@ -49,6 +49,7 @@ const navBarItems = [
             {
                 title: "Admin Management",
                 icon: GrUserAdmin,
+                requiredOwner: true,
                 subItems: [
                     {
                         title: "Overview",

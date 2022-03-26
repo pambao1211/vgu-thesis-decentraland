@@ -1,4 +1,4 @@
-import { Flex, Icon, Text, Badge } from "@chakra-ui/react";
+import { Box, Flex, Icon, Text, Badge } from "@chakra-ui/react";
 
 import { DETAIL_INFO_COLOR } from "../../configs/index";
 

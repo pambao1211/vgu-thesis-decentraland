@@ -10,10 +10,10 @@ import { PRIMARY_COLOR } from "../../../configs";
 import { getCitizens } from "../../../apis";
 
 export default function CitizensOverview() {
-    const contract = useSelector((state) => state.contractReducer);
-    const router = useRouter();
     const [hasFetched, setHasFetch] = useState(false);
     const [citizens, setCitizens] = useState([]);
+    const contract = useSelector((state) => state.contractReducer);
+    const router = useRouter();
 
     useEffect(() => {
         const fetchCitizensData = async () => {
@@ -24,7 +24,7 @@ export default function CitizensOverview() {
         fetchCitizensData();
     }, []);
 
-    const renderedCitizens = () => {
+    const renderCitizens = () => {
         return (
             <Stack w="100%" spacing={3}>
                 {citizens.map((citizen) => {
@@ -57,7 +57,7 @@ export default function CitizensOverview() {
                     }
                 />
             ) : (
-                renderedCitizens()
+                renderCitizens()
             )}
         </>
     );

@@ -2,10 +2,17 @@ import { Avatar, Box, Flex, Text } from "@chakra-ui/react";
 import Jdenticon from "react-jdenticon";
 import { DETAIL_INFO_COLOR } from "../configs";
 
+import LoadingSkeleton from "../components/commons/LoadingSkeleton";
 import { useAuth } from "../contexts/AuthContext";
 
 const AdminBar = () => {
-    const { currentUser } = useAuth();
+    const { currentUser, currentAdmin } = useAuth();
+    const getGreetingText = () => {
+        if (currentAdmin && currentAdmin.id != 0) {
+            return `Welcome ${currentAdmin.title}`;
+        }
+        return "Not authorized account";
+    };
     return (
         <Flex
             w="100%"
@@ -16,11 +23,21 @@ const AdminBar = () => {
             borderWidth={1}
             shadow="md"
         >
-            <Text fontWeight="medium">Welcome, Ministry of Land</Text>
-            <Flex justifyContent="space-between" alignItems="center">
-                <Box color={DETAIL_INFO_COLOR}>{currentUser}</Box>
-                <Jdenticon size="30" value={currentUser} />
-            </Flex>
+            {!currentAdmin ? (
+                <LoadingSkeleton numberSkeleton={1} />
+            ) : (
+                <>
+                    <Text textTransform="capitalize" fontWeight="medium">
+                        {getGreetingText()}
+                    </Text>
+                    <Flex justifyContent="space-between" alignItems="center">
+                        <Box pr={2} color={DETAIL_INFO_COLOR}>
+                            {currentUser}
+                        </Box>
+                        <Jdenticon size="30" value={currentUser} />
+                    </Flex>
+                </>
+            )}
         </Flex>
     );
 };
