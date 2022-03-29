@@ -10,7 +10,7 @@ export default function AddCitizen() {
     const toast = useToast();
     const [isCheckingIdNum, setIsCheckingIdNum] = useState(false);
     const contract = useSelector((state) => state.contractReducer);
-    const { currentUser } = useAuth();
+    const { currentAdmin } = useAuth();
 
     const handleSubmit = async (values) => {
         const { idNumber, fullName, gender, dob } = values;
@@ -23,7 +23,7 @@ export default function AddCitizen() {
                 fullName,
                 gender,
                 formattedDob,
-                currentUser
+                currentAdmin.adminAddr
             );
             toast({
                 title: "Citizen Registration Success",

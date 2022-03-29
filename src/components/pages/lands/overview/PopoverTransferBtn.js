@@ -49,7 +49,7 @@ const PopoverTransferBtn = ({ land, ...rest }) => {
     const dispatch = useDispatch();
     const toast = useToast();
     const contract = useSelector((state) => state.contractReducer);
-    const { currentUser } = useAuth();
+    const { currentAdmin } = useAuth();
 
     const cleanData = () => {
         setCitizenId("");
@@ -91,7 +91,7 @@ const PopoverTransferBtn = ({ land, ...rest }) => {
                 contract,
                 land.id,
                 citizenResult.idNumber,
-                currentUser
+                currentAdmin.adminAddr
             );
             toast({
                 title: "Land Ownership Transaction Success",

@@ -6,7 +6,7 @@ import LoadingSkeleton from "../components/commons/LoadingSkeleton";
 import { useAuth } from "../contexts/AuthContext";
 
 const AdminBar = () => {
-    const { currentUser, currentAdmin } = useAuth();
+    const { currentAdmin } = useAuth();
     const getGreetingText = () => {
         if (currentAdmin && currentAdmin.id != 0) {
             return `Welcome ${currentAdmin.title}`;
@@ -32,9 +32,9 @@ const AdminBar = () => {
                     </Text>
                     <Flex justifyContent="space-between" alignItems="center">
                         <Box pr={2} color={DETAIL_INFO_COLOR}>
-                            {currentUser}
+                            {currentAdmin.adminAddr}
                         </Box>
-                        <Jdenticon size="30" value={currentUser} />
+                        <Jdenticon size="30" value={currentAdmin.adminAddr} />
                     </Flex>
                 </>
             )}

@@ -7,14 +7,16 @@ import GenericForm from "../../../components/commons/GenericForm";
 
 export default function AddLand() {
     const dispatch = useDispatch();
-    const { currentUser } = useAuth();
+    const { currentAdmin } = useAuth();
     const toast = useToast();
 
     const handleSubmit = async (values) => {
-        const { owner, description, file } = values;
+        const { description, file } = values;
         console.log(values);
         try {
-            await dispatch(publishLand(description, file, currentUser));
+            await dispatch(
+                publishLand(description, file, currentAdmin.adminAddr)
+            );
             toast({
                 title: "Land Registration Success.",
                 description: "Land A has been successfully registered",

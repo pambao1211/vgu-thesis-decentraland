@@ -36,7 +36,7 @@ const exportOneFile = () => {
 
 const exportMultipleFile = () => {
     const filteredObj = dataSet.filter((data) => {
-        return data.cadastral_size <= 1000;
+        return data.cadastral_size <= 2000;
     });
     const obj = filteredObj.map((data, index) => {
         const paths = getPath(data.paths);

@@ -29,7 +29,6 @@ const AdminsOverview = () => {
             const result = await getAdmins(contract);
             setAdmins(result);
             setHasFetch(true);
-            console.log(result);
         };
         fetchAdminData();
     }, []);

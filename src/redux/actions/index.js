@@ -16,13 +16,14 @@ import {
     postIpfs,
 } from "../../apis";
 
-export const getContract = () => async (dispatch) => {
+export const getContract = (account) => async (dispatch) => {
     const networkId = await window.web3.eth.net.getId();
     const networkData = Decentraland.networks[networkId];
     if (networkData) {
         const contract = new web3.eth.Contract(
             Decentraland.abi,
-            networkData.address
+            networkData.address,
+            { from: account }
         );
         dispatch({ type: GET_CONTRACT, payload: contract });
     } else {

@@ -12,10 +12,10 @@ const getLandSpecifications = async (hash) => {
 };
 
 export const getLands = async (contract) => {
-    const landsCount = await contract.methods.landCount().call();
+    const landsCount = await contract.methods.getLandCount().call();
     const lands = [];
     for (let i = 1; i <= landsCount; i++) {
-        const land = await contract.methods.lands(i).call();
+        const land = await contract.methods.getLand(i).call();
         const { center, area, paths } = await getLandSpecifications(
             land.landCoordinatorHash
         );
@@ -26,7 +26,7 @@ export const getLands = async (contract) => {
 };
 
 export const getLand = async (contract, id) => {
-    const land = await contract.methods.lands(id).call();
+    const land = await contract.methods.getLand(id).call();
     const { center, area, paths } = await getLandSpecifications(
         land.landCoordinatorHash
     );
@@ -81,10 +81,10 @@ export const postCitizen = async (
 };
 
 export const getCitizens = async (contract) => {
-    const citizensCount = await contract.methods.citizenCount().call();
+    const citizensCount = await contract.methods.getCitizenCount().call();
     const citizens = [];
     for (let i = 1; i <= citizensCount; i++) {
-        const citizen = await contract.methods.citizens(i).call();
+        const citizen = await contract.methods.getCitizen(i).call();
         citizens.push(filterNumericKeys(citizen));
     }
     return citizens;
@@ -98,7 +98,7 @@ export const getCitizenByIdNumber = async (contract, idNumber) => {
 };
 
 export const getCitizen = async (contract, id) => {
-    const citizen = await contract.methods.citizens(id).call();
+    const citizen = await contract.methods.getCitizen(id).call();
     return filterNumericKeys(citizen);
 };
 
@@ -114,22 +114,21 @@ export const transferLand = async (contract, landId, citizenId, sender) => {
 };
 
 export const getAdmins = async (contract) => {
-    const adminCount = await contract.methods.adminCount().call();
+    const adminCount = await contract.methods.getAdminCount().call();
     const admins = [];
     for (let i = 1; i <= adminCount; i++) {
-        const admin = await contract.methods.admins(i).call();
+        const admin = await contract.methods.getAdmin(i).call();
         admins.push(filterNumericKeys(admin));
     }
     return admins;
 };
 
 export const getAdmin = async (contract, id) => {
-    const admin = await contract.methods.admins(id).call();
+    const admin = await contract.methods.getAdmin(id).call();
     return filterNumericKeys(admin);
 };
 
 export const postAdmin = async (contract, title, address, sender) => {
-    console.log("Post admin");
     return contract.methods.publishAdmin(title, address).send({ from: sender });
 };
 

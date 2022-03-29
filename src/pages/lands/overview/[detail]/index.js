@@ -19,7 +19,6 @@ const LandDetail = () => {
     const { detail: id } = router.query;
 
     useEffect(() => {
-        console.log("useEffect");
         const intializeData = async () => {
             await dispatch(fetchLand(id));
         };

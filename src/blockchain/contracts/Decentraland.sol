@@ -86,28 +86,34 @@ contract Decentraland{
     );
 
     string public constant NAME = "Decentraland";
+    address public owner;
     string private constant TOWNSHIP_CODE = "ASD";
     string private constant ADMIN_CODE = "ADMIN";
     uint256 private constant PARCEL_NUMBER_SEED = 5000;
     uint256 private constant ADMIN_NUMBER_SEED = 3000;
-    address public owner;
-    uint256 public landCount = 0;
-    uint256 public citizenCount = 0;
-    uint256 public adminCount = 0;
+    uint256 private landCount = 0;
+    uint256 private citizenCount = 0;
+    uint256 private adminCount = 0;
     uint256 private transactionCount = 0;
-    mapping(uint256 => Land) public lands;
-    mapping(uint256 => Citizen) public citizens;
-    mapping(uint256 => Admin) public admins;
+    mapping(uint256 => Land) private lands;
+    mapping(uint256 => Citizen) private citizens;
+    mapping(uint256 => Admin) private admins;
 
-    mapping(uint256 => uint256) public idNumbersToCitizenId;
-    mapping(address => uint256) public addressToAdminId;
-    mapping(uint256 => landTransferedTrx) public landTransferedTrxs;
+    mapping(uint256 => uint256) private idNumbersToCitizenId;
+    mapping(address => uint256) private addressToAdminId;
+    mapping(uint256 => landTransferedTrx) private landTransferedTrxs;
     mapping(uint256 => uint256[]) private landIdToTrxIds;
     mapping(uint256 => uint256[]) private citizenIdToOwnedLandTrxIds;
 
-    constructor(){
-        owner = msg.sender;
-        publishAdmin("Contract owner", msg.sender);
+    modifier onlyOwner(address _sender){
+        require(owner == _sender, "Sender must be the contract creator");
+        _;
+    }
+
+    modifier onlyAdmin(address _sender){
+        Admin memory admin = getAdminByAddress(_sender);
+        require(admin.id != 0, "Only admin account is authorized");
+        _;
     }
 
     modifier validLandId(uint256 _landId){
@@ -120,16 +126,52 @@ contract Decentraland{
         _;
     }
 
+    modifier validAdminId(uint256 _adminId){
+        require(_adminId > 0 && _adminId <= adminCount, "Invalid admin id");
+        _;
+    }
+
     modifier validCitizenIdNumber(uint256 _citizenIdNumber){
         bool is10Digit = bytes(Strings.toString(_citizenIdNumber)).length == 10;
         require(is10Digit, "Citizen id number must contain 10 digit");
         _;
     }
 
+    constructor(){
+        owner = msg.sender;
+        publishAdmin("Contract owner", msg.sender);
+    }
 
-    modifier onlyOwner(address _sender){
-        require(owner == _sender, "Sender must be the contract creator");
-        _;
+    function getLandCount() external view onlyAdmin(msg.sender) returns(uint256){
+        return landCount;
+    }
+
+    function getLand(uint256 _id) external view onlyAdmin(msg.sender) returns(Land memory){
+        return lands[_id];
+    }
+
+    function getCitizenCount() external view onlyAdmin(msg.sender) returns(uint256){
+        return citizenCount;
+    }
+
+    function getCitizen(uint256 _id) external view onlyAdmin(msg.sender) validCitizenId(_id) returns(Citizen memory){
+        return citizens[_id];
+    }
+
+    function getCitizenByIdNumber(uint256 _idNumber) external view onlyAdmin(msg.sender) validCitizenIdNumber(_idNumber) returns(Citizen memory){
+        return citizens[idNumbersToCitizenId[_idNumber]];
+    }
+
+    function getAdminCount() external view onlyOwner(msg.sender) returns(uint256){
+        return adminCount;
+    }
+
+    function getAdmin(uint256 _id) external view onlyOwner(msg.sender) returns(Admin memory){
+        return admins[_id];
+    }
+
+    function getAdminByAddress(address _address) public view returns(Admin memory){
+        return admins[addressToAdminId[_address]];
     }
 
     function isCitizenLandOwner(uint256 _landId, uint256 _citizenId) view private returns(bool){
@@ -137,6 +179,10 @@ contract Decentraland{
         uint256[] memory landTrxIds = landIdToTrxIds[_landId];
         landTransferedTrx memory lastLandTrx = landTransferedTrxs[landTrxIds[landTrxsLength - 1]];
         return lastLandTrx.ownerId == _citizenId;
+    }
+
+    function checkIsContractOwner(address _sender) external view returns(bool){
+        return owner == _sender;
     }
 
     function isNewAdminAddressValid(address _newAdmin) private view returns(bool){
@@ -169,16 +215,11 @@ contract Decentraland{
             if(isAfterIndex){
                 ownerTrxIds[i] = ownerTrxIds[i + 1];
             }
-
         }
         ownerTrxIds.pop();
     }
 
-    function getCitizenByIdNumber(uint256 _idNumber) external view validCitizenIdNumber(_idNumber) returns(Citizen memory){
-        return citizens[idNumbersToCitizenId[_idNumber]];
-    }
-
-    function getLandTrxs(uint256 _landId) external view validLandId(_landId) returns(landTransferedTrx[] memory) {
+    function getLandTrxs(uint256 _landId) external view onlyAdmin(msg.sender) validLandId(_landId) returns(landTransferedTrx[] memory) {
         uint256[] memory trxIds = landIdToTrxIds[_landId];
         uint256 arrLength = trxIds.length;
         landTransferedTrx[] memory result = new landTransferedTrx[](arrLength);
@@ -188,7 +229,7 @@ contract Decentraland{
         return result;
     }
 
-    function getCitizenOwnedTrxs(uint256 _citizenId) external view validCitizenId(_citizenId) returns(landTransferedTrx[] memory){
+    function getCitizenOwnedTrxs(uint256 _citizenId) external view onlyAdmin(msg.sender) validCitizenId(_citizenId) returns(landTransferedTrx[] memory){
         uint256[] memory trxIds = citizenIdToOwnedLandTrxIds[_citizenId];
         uint256 arrLength = trxIds.length;
         landTransferedTrx[] memory result = new landTransferedTrx[](arrLength);
@@ -201,7 +242,7 @@ contract Decentraland{
     function publishLand(
         string calldata _description,
         string calldata _landCoordinatorHash
-    ) external{
+    ) external onlyAdmin(msg.sender){
         require(bytes(_landCoordinatorHash).length > 0, "Land hash specification is required");
         require(bytes(_description).length > 0, "Description is required");
         require(msg.sender != address(0), "Invalid address");
@@ -235,7 +276,7 @@ contract Decentraland{
 
     function publishCitizen (
         uint256 _idNumber, string calldata _fullName, Gender _gender, uint256 _dob
-    ) external validCitizenIdNumber(_idNumber){
+    ) external onlyAdmin(msg.sender) validCitizenIdNumber(_idNumber){
         bool isIdNumberUnique = idNumbersToCitizenId[_idNumber] == 0;
         require(isIdNumberUnique, "Citizen id number already exist");
         require(bytes(_fullName).length > 0, "Full name is required");
@@ -264,7 +305,7 @@ contract Decentraland{
         );
     }
 
-    function transferLand(uint256 _landId, uint256 _citizenIdNumber) external validLandId(_landId) validCitizenIdNumber(_citizenIdNumber){
+    function transferLand(uint256 _landId, uint256 _citizenIdNumber) external onlyAdmin(msg.sender) validLandId(_landId) validCitizenIdNumber(_citizenIdNumber){
         uint256 citizenId = idNumbersToCitizenId[_citizenIdNumber];
         require(citizenId != 0, "Citizen id does not exist");
         uint256 landTrxsLength = landIdToTrxIds[_landId].length;
@@ -306,11 +347,4 @@ contract Decentraland{
         emit AdminPublished(adminCount, _title, adminCode, _newAdmin, msg.sender, publishDate);
     }
 
-    function getAdminByAddress(address _address) external view returns(Admin memory){
-        return admins[addressToAdminId[_address]];
-    }
-
-    function checkIsContractOwner(address _address) external view returns(bool){
-        return owner == _address;
-    }
 }

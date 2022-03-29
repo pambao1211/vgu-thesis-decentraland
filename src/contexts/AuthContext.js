@@ -34,13 +34,14 @@ const AuthProvider = ({ children }) => {
                     await window.ethereum.request({
                         method: "eth_requestAccounts",
                     });
-                    const accounts = await window.web3.eth.getAccounts();
-                    setCurrentUser(accounts[0]);
+                    const currentAccounts = await window.web3.eth.getAccounts();
+                    setCurrentUser(currentAccounts[0]);
+                    await dispatch(getContract(currentAccounts[0]));
                 });
 
                 const accounts = await window.web3.eth.getAccounts();
                 setCurrentUser(accounts[0]);
-                await dispatch(getContract());
+                await dispatch(getContract(accounts[0]));
                 setIsLoading(false);
             } else {
                 window.alert(
@@ -62,15 +63,13 @@ const AuthProvider = ({ children }) => {
                 contract,
                 currentUser
             );
-            console.log(isContractOwner);
             setCurrentAdmin({ ...admin, isContractOwner });
             setIsLoading(false);
         };
         loadAdminInfo();
-    }, [contract, currentUser]);
+    }, [contract]);
 
     const value = {
-        currentUser,
         currentAdmin,
     };
 
@@ -78,7 +77,7 @@ const AuthProvider = ({ children }) => {
         if (isLoading) {
             return <Loading />;
         }
-        if (currentAdmin.id == "0") {
+        if (currentAdmin.id == 0) {
             return <NotAuthAdmin />;
         }
         return children;
